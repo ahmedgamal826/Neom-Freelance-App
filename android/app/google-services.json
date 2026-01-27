@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "690605535945",
+    "project_id": "neon-d2f04",
+    "storage_bucket": "neon-d2f04.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:690605535945:android:0d0cb7d7033b1b4f09d318",
+        "android_client_info": {
+          "package_name": "com.example.neon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgZxV_HQk679oUcW7O7hP_9tfdzCpIPlA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
