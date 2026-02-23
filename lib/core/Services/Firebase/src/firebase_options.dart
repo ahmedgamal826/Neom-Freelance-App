@@ -53,7 +53,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAgZxV_HQk679oUcW7O7hP_9tfdzCpIPlA',
+    apiKey: 'AIzaSyDuNrixsSBLqML1XAoSXLXb6h7SyTRUefI',
     appId: '1:690605535945:android:0d0cb7d7033b1b4f09d318',
     messagingSenderId: '690605535945',
     projectId: 'neon-d2f04',
