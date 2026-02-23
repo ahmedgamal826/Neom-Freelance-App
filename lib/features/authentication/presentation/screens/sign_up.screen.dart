@@ -7,7 +7,6 @@ import 'package:neon/features/authentication/presentation/screens/sign_in.screen
 import '../../../../core/Services/Auth/auth_service.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/secondary_button.dart';
-import '../../../home/presentation/screens/home_screen.dart';
 
 //t2 Dependencies Imports
 //t3 Services
@@ -222,14 +221,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 appUser: appUser,
                                 password: passwordController.text,
                               );
-                              if (user) {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute<void>(
-                                    builder: (BuildContext context) =>
-                                        const HomeScreen(),
-                                  ),
-                                );
+                              if (user && context.mounted) {
+                                // Pop back to SignInScreen (root route)
+                                // StreamBuilder in main.dart will show HomeScreen
+                                Navigator.pop(context);
                               }
                             }
                           },

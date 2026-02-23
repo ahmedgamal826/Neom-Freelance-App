@@ -1,12 +1,10 @@
 //t2 Core Packages Imports
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:neon/features/authentication/presentation/screens/sign_up.screen.dart';
 
 import '../../../../core/Services/Auth/auth_service.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/secondary_button.dart';
-import '../../../home/presentation/screens/home_screen.dart';
 
 //t2 Dependencies Imports
 //t3 Services
@@ -144,20 +142,12 @@ class _SignInScreenState extends State<SignInScreen> {
                         child: PrimaryButton(
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              User? user = await AuthService()
+                              // StreamBuilder in main.dart handles navigation
+                              await AuthService()
                                   .signInWithEmailAndPassword(
                                       emailController.text.trim(),
                                       passwordController.text,
                                       context);
-                              if (user != null) {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute<void>(
-                                    builder: (BuildContext context) =>
-                                        const HomeScreen(),
-                                  ),
-                                );
-                              }
                             }
                           },
                           title: "تسجيل الدخول",

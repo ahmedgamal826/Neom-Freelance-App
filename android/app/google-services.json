@@ -1,13 +1,71 @@
 {
   "project_info": {
-    "project_number": "690605535945",
-    "project_id": "neon-d2f04",
-    "storage_bucket": "neon-d2f04.appspot.com"
+    "project_number": "125114476514",
+    "firebase_url": "https://ahmed-new-portifolio-default-rtdb.firebaseio.com",
+    "project_id": "ahmed-new-portifolio",
+    "storage_bucket": "ahmed-new-portifolio.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:690605535945:android:0d0cb7d7033b1b4f09d318",
+        "mobilesdk_app_id": "1:125114476514:android:aa0735514481f38e87bbbb",
+        "android_client_info": {
+          "package_name": "com.example.my_guide_admin_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSZa-rxt92R2I5ceQlDtKjaXHKs1b6AKs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:125114476514:android:499713a7fb603ab087bbbb",
+        "android_client_info": {
+          "package_name": "com.example.my_guide_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSZa-rxt92R2I5ceQlDtKjaXHKs1b6AKs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:125114476514:android:37f8a871367bcbb987bbbb",
+        "android_client_info": {
+          "package_name": "com.example.my_protfolio_using_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSZa-rxt92R2I5ceQlDtKjaXHKs1b6AKs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:125114476514:android:5ad824511880c98787bbbb",
         "android_client_info": {
           "package_name": "com.example.neon"
         }
@@ -15,7 +73,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDuNrixsSBLqML1XAoSXLXb6h7SyTRUefI"
+          "current_key": "AIzaSyCSZa-rxt92R2I5ceQlDtKjaXHKs1b6AKs"
         }
       ],
       "services": {

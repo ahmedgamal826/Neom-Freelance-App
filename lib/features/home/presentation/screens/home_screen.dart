@@ -117,9 +117,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: ListTile(
                     leading: const Icon(Icons.logout),
                     title: const Text('تسجيل الخروج'),
-                    onTap: () {
-                      AuthService().signOut(context);
-                      setState(() {});
+                    onTap: () async {
+                      Navigator.pop(context); // Close the drawer
+                      await AuthService().signOut(context);
+                      // StreamBuilder in main.dart handles navigation to SignInScreen
                     },
                   ),
                 ),

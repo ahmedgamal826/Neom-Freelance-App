@@ -1,6 +1,7 @@
 // ignore_for_file: depend_on_referenced_packages
 //t2 Core Packages Imports
 import 'package:firebase_core/firebase_core.dart';
+import 'package:neon/firebase_options.dart';
 
 //t2 Dependancies Imports
 //t3 Services
@@ -8,7 +9,6 @@ import 'package:firebase_core/firebase_core.dart';
 import '../Error Handling/error_handling.service.dart';
 import '../Logging/logging.service.dart';
 //t3 Models
-import 'src/firebase_options.dart';
 //t1 Exports
 
 class FirebaseService {
