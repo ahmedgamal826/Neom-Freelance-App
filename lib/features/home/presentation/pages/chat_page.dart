@@ -37,6 +37,7 @@ class ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -102,8 +103,7 @@ class ChatPageState extends State<ChatPage> {
                 timeFormat: intl.DateFormat('hh:mm a'),
                 currentUserContainerColor: const Color(0xFF5B3CC4),
                 currentUserTextColor: Colors.white,
-                currentUserTimeTextColor:
-                    Colors.white.withValues(alpha: 0.78),
+                currentUserTimeTextColor: Colors.white.withValues(alpha: 0.78),
                 containerColor: const Color(0xFFFFFFFF),
                 textColor: const Color(0xFF1E1F22),
                 timeTextColor: const Color(0xFF6B7280),
@@ -246,6 +246,7 @@ class ChatPageState extends State<ChatPage> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 18),
           Container(
@@ -300,21 +301,6 @@ class ChatPageState extends State<ChatPage> {
                   ? 'اضغط على "فحص اتصال السيرفر" أولاً.'
                   : _statusMessage,
               style: const TextStyle(color: Colors.white70, height: 1.45),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1D242A),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF355166)),
-            ),
-            child: Text(
-              _connectionHintText(),
-              style: const TextStyle(color: Color(0xFFA8C7FA), fontSize: 12),
               textAlign: TextAlign.center,
             ),
           ),
@@ -415,16 +401,6 @@ class ChatPageState extends State<ChatPage> {
     );
   }
 
-  String _connectionHintText() {
-    if (_resolvedBaseUrl.contains('127.0.0.1')) {
-      return 'إذا كنت تستخدم Android Emulator فالعنوان الصحيح غالباً هو 10.0.2.2.';
-    }
-    if (_resolvedBaseUrl.contains('10.0.2.2')) {
-      return 'إذا كنت على Windows Desktop أو Web فاستخدم 127.0.0.1 بدلاً من 10.0.2.2.';
-    }
-    return 'إذا كنت على موبايل حقيقي، استخدم IP جهازك المحلي مثل 192.168.x.x.';
-  }
-
   Future<void> _checkModelStatus() async {
     setState(() {
       _isCheckingStatus = true;
@@ -483,7 +459,8 @@ class ChatPageState extends State<ChatPage> {
           return;
         }
         setState(() {
-          _statusMessage = 'المودل كان محملاً بالفعل. جاري فتح شاشة المحادثة...';
+          _statusMessage =
+              'المودل كان محملاً بالفعل. جاري فتح شاشة المحادثة...';
         });
         _activateChatScreen();
         return;
