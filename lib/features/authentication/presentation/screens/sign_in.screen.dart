@@ -1,4 +1,5 @@
 //t2 Core Packages Imports
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:neon/features/authentication/presentation/screens/sign_up.screen.dart';
 
@@ -31,13 +32,22 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isEmailSignInLoading = false;
+  bool _isGoogleSignInLoading = false;
+
+  bool get _isAnyLoading => _isEmailSignInLoading || _isGoogleSignInLoading;
+
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     //SECTION - Build Setup
     //t2 -Values
     double w = MediaQuery.of(context).size.width;
-    double h = MediaQuery.of(context).size.height;
     //t2 -Values
     //
     //t2 -Widgets
@@ -141,16 +151,39 @@ class _SignInScreenState extends State<SignInScreen> {
                         width: w,
                         child: PrimaryButton(
                           onPressed: () async {
+                            if (_isAnyLoading) {
+                              return;
+                            }
+
                             if (_formKey.currentState!.validate()) {
-                              // StreamBuilder in main.dart handles navigation
-                              await AuthService()
+                              setState(() {
+                                _isEmailSignInLoading = true;
+                              });
+
+                              final user = await AuthService()
                                   .signInWithEmailAndPassword(
-                                      emailController.text.trim(),
-                                      passwordController.text,
-                                      context);
+                                emailController.text.trim(),
+                                passwordController.text,
+                              );
+
+                              if (!mounted) {
+                                return;
+                              }
+
+                              if (user == null) {
+                                _showErrorMessage(
+                                  'فشل تسجيل الدخول. تأكد من البريد وكلمة المرور.',
+                                );
+                              }
+
+                              setState(() {
+                                _isEmailSignInLoading = false;
+                              });
                             }
                           },
-                          title: "تسجيل الدخول",
+                          title: _isEmailSignInLoading
+                              ? "جاري الدخول..."
+                              : "تسجيل الدخول",
                         ),
                       )
                     ],
@@ -185,6 +218,48 @@ class _SignInScreenState extends State<SignInScreen> {
               ),
               const SizedBox(
                 height: 32,
+              ),
+              SizedBox(
+                width: w,
+                child: OutlinedButton.icon(
+                  onPressed: _isAnyLoading
+                      ? null
+                      : () async {
+                          setState(() {
+                            _isGoogleSignInLoading = true;
+                          });
+
+                          final user = await AuthService().signInWithGoogle();
+
+                          if (!mounted) {
+                            return;
+                          }
+
+                          if (user == null) {
+                            _showErrorMessage(
+                              'تعذر تسجيل الدخول عبر Google. تحقق من إعدادات Firebase.',
+                            );
+                          }
+
+                          setState(() {
+                            _isGoogleSignInLoading = false;
+                          });
+                        },
+                  icon: _isGoogleSignInLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const FaIcon(
+                          FontAwesomeIcons.google,
+                          size: 18,
+                        ),
+                  label: const Text("تسجيل الدخول باستخدام Google"),
+                ),
+              ),
+              const SizedBox(
+                height: 12,
               ),
               SizedBox(
                   width: w,

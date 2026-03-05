@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../Data/Models/App User/app_user.model.dart';
 import '../../../Data/Repositories/user.repo.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   Future<bool> signUpWithEmailAndPassword({
     required AppUser appUser,
@@ -32,14 +34,17 @@ class AuthService {
   }
 
   Future<User?> signInWithEmailAndPassword(
-      String email, String password, BuildContext context) async {
+    String email,
+    String password, [
+    BuildContext? context,
+  ]) async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
       return userCredential.user;
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       // if (e.code == 'user-not-found') {
       //   SnackbarHelper.showTemplated(context,
       //       content: const Text('No user found for that email.'),
@@ -52,6 +57,64 @@ class AuthService {
       return null;
     } catch (e) {
       debugPrint('Sign in failed: $e');
+      return null;
+    }
+  }
+
+  Future<User?> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        // User cancelled the Google picker.
+        return null;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+
+      final User? firebaseUser = userCredential.user;
+      if (firebaseUser == null) {
+        return null;
+      }
+
+      if (userCredential.additionalUserInfo?.isNewUser ?? false) {
+        final List<String> nameParts = (firebaseUser.displayName ?? '')
+            .trim()
+            .split(RegExp(r'\s+'))
+            .where((part) => part.isNotEmpty)
+            .toList();
+
+        final String firstName = nameParts.isNotEmpty ? nameParts.first : 'User';
+        final String secondName =
+            nameParts.length > 1 ? nameParts.sublist(1).join(' ') : 'Google';
+
+        final AppUser appUser = AppUser(
+          id: firebaseUser.uid,
+          firstName: firstName,
+          secondName: secondName,
+          email: firebaseUser.email ?? googleUser.email,
+        );
+
+        await AppUserRepo().createSingle(
+          appUser,
+          itemId: appUser.id,
+        );
+      }
+
+      return firebaseUser;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Google sign in failed: ${e.code} - ${e.message}');
+      return null;
+    } catch (e) {
+      debugPrint('Google sign in failed: $e');
       return null;
     }
   }
@@ -69,8 +132,9 @@ class AuthService {
     }
   }
 
-  Future<void> signOut(BuildContext context) async {
+  Future<void> signOut([BuildContext? context]) async {
     try {
+      await _googleSignIn.signOut();
       await _auth.signOut();
     } catch (e) {
       debugPrint('Sign out failed: $e');
