@@ -114,7 +114,7 @@ Future<void> main() async {
   await FirebaseService.initialize();
 
   // 🔥 تأكيد إن القيمة اتقرت
-  print("BASE URL: ${dotenv.env['NEOM_API_BASE_URL']}");
+  debugPrint("BASE URL: ${dotenv.env['NEOM_API_BASE_URL']}");
 
   runApp(const MyApp());
 }
@@ -129,7 +129,13 @@ class MyApp extends StatelessWidget {
       home: StreamBuilder(
         stream: AuthService().isUserLoggedIn(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          if (snapshot.data != null) {
             return const HomeScreen();
           } else {
             return const SignInScreen();

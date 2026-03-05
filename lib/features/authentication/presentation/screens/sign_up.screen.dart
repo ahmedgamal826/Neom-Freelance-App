@@ -80,7 +80,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     //SECTION - Build Setup
     //t2 -Values
     double w = MediaQuery.of(context).size.width;
-    double h = MediaQuery.of(context).size.height;
     //t2 -Values
     //
     //t2 -Widgets
@@ -269,7 +268,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: SecondaryButton(
                   title: "تسجيل الدخول",
                   onPressed: () {
-                    Navigator.push(
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                      return;
+                    }
+
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute<void>(
                         builder: (BuildContext context) => const SignInScreen(),

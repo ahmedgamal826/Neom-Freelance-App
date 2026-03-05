@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -7,7 +8,6 @@ import '../../../Data/Repositories/user.repo.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   Future<bool> signUpWithEmailAndPassword({
     required AppUser appUser,
@@ -63,7 +63,15 @@ class AuthService {
 
   Future<User?> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (kIsWeb) {
+        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        final UserCredential webCredential =
+            await _auth.signInWithPopup(googleProvider);
+        return webCredential.user;
+      }
+
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
         // User cancelled the Google picker.
         return null;
@@ -134,7 +142,9 @@ class AuthService {
 
   Future<void> signOut([BuildContext? context]) async {
     try {
-      await _googleSignIn.signOut();
+      if (!kIsWeb) {
+        await GoogleSignIn().signOut();
+      }
       await _auth.signOut();
     } catch (e) {
       debugPrint('Sign out failed: $e');
