@@ -99,7 +99,7 @@ class ChatPageState extends State<ChatPage> {
                 showOtherUsersName: true,
                 showCurrentUserAvatar: false,
                 showOtherUsersAvatar: true,
-                showTime: true,
+                showTime: false,
                 timeFormat: intl.DateFormat('hh:mm a'),
                 currentUserContainerColor: const Color(0xFF5B3CC4),
                 currentUserTextColor: Colors.white,
@@ -135,6 +135,61 @@ class ChatPageState extends State<ChatPage> {
                         offset: const Offset(0, 3),
                       ),
                     ],
+                  );
+                },
+                messageTextBuilder: (message, previousMessage, nextMessage) {
+                  final isCurrentUser = message.user.id == _currentUser.id;
+                  final detectedDirection = _resolveMessageTextDirection(
+                    message.text,
+                  );
+                  final textDirection =
+                      isCurrentUser ? TextDirection.rtl : detectedDirection;
+                  final formattedTime = intl.DateFormat(
+                    'hh:mm a',
+                  ).format(message.createdAt);
+
+                  return Directionality(
+                    textDirection: textDirection,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: textDirection == TextDirection.rtl
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          message.text,
+                          textAlign: textDirection == TextDirection.rtl
+                              ? TextAlign.right
+                              : TextAlign.left,
+                          style: TextStyle(
+                            color: isCurrentUser
+                                ? Colors.white
+                                : const Color(0xFF1E1F22),
+                            fontSize: 14,
+                            height: 1.6,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Align(
+                          widthFactor: 1,
+                          alignment: isCurrentUser
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          child: Directionality(
+                            textDirection: TextDirection.ltr,
+                            child: Text(
+                              formattedTime,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isCurrentUser
+                                    ? Colors.white.withValues(alpha: 0.78)
+                                    : const Color(0xFF6B7280),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 },
                 userNameBuilder: (user) => Padding(
@@ -237,6 +292,11 @@ class ChatPageState extends State<ChatPage> {
         ),
       ],
     );
+  }
+
+  TextDirection _resolveMessageTextDirection(String text) {
+    final hasArabicContent = RegExp(r'[\u0600-\u06FF]').hasMatch(text);
+    return hasArabicContent ? TextDirection.rtl : TextDirection.ltr;
   }
 
   Widget _buildLoadModelUi() {

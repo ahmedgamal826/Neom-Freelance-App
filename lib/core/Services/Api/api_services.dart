@@ -148,7 +148,7 @@ class ApiServices {
     try {
       final response = await _client
           .post(
-            Uri.parse('$requestBaseUrl/api/chat'),
+            Uri.parse('$requestBaseUrl/api/chat-full'),
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({
               'question': question,
@@ -251,18 +251,34 @@ class LoadModelResult {
 
 class ChatApiResponse {
   const ChatApiResponse({
-    required this.answer,
+    required this.rawAnswer,
+    required this.improvedAnswer,
+    required this.changesMade,
+    required this.geminiUsed,
     required this.retrievedQuestions,
     required this.modelUsed,
   });
 
-  final String answer;
+  final String rawAnswer;
+  final String improvedAnswer;
+  final String changesMade;
+  final bool geminiUsed;
   final List<String> retrievedQuestions;
   final String modelUsed;
 
+  String get answer => improvedAnswer.isNotEmpty ? improvedAnswer : rawAnswer;
+
   factory ChatApiResponse.fromJson(Map<String, dynamic> json) {
+    // Supports both `/api/chat-full` and legacy `/api/chat`.
+    final legacyAnswer = (json['answer'] as String?) ?? '';
+    final rawAnswer = (json['raw_answer'] as String?) ?? legacyAnswer;
+    final improvedAnswer = (json['improved_answer'] as String?) ?? legacyAnswer;
+
     return ChatApiResponse(
-      answer: (json['answer'] as String?) ?? '',
+      rawAnswer: rawAnswer,
+      improvedAnswer: improvedAnswer,
+      changesMade: (json['changes_made'] as String?) ?? '',
+      geminiUsed: json['gemini_used'] == true,
       retrievedQuestions: (json['retrieved_questions'] as List<dynamic>? ?? [])
           .map((item) => item.toString())
           .toList(),
