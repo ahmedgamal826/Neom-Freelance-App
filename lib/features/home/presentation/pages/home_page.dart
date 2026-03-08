@@ -56,14 +56,39 @@ class HomePage extends StatelessWidget {
                     style: TextStyle(color: Colors.black),
                   )),
             ),
-            Image.asset(
-              "assets/images/timeline.jpg",
-            ),
+            _buildTimelineImage(),
           ],
         ),
       ),
     );
 
     //!SECTION
+  }
+
+  Widget _buildTimelineImage() {
+    return Stack(
+      children: [
+        Image.asset("assets/images/timeline.jpg"),
+        // Overlay the first year label to show the updated value without
+        // needing to regenerate the static timeline image asset.
+        Positioned(
+          left: 10,
+          bottom: 70,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            color: const Color(0xff171B22),
+            child: const Text(
+              "2026",
+              style: TextStyle(
+                color: Color(0xfff5d74f),
+                fontSize: 56,
+                fontWeight: FontWeight.w700,
+                height: 0.95,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

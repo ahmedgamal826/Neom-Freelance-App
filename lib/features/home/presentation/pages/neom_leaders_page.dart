@@ -64,12 +64,12 @@ class NeomLeadersPage extends StatelessWidget {
 
 class Person {
   final String name;
-  final String jobTitle;
+  final String? jobTitle;
   final String image;
 
   Person({
     required this.name,
-    required this.jobTitle,
+    this.jobTitle,
     required this.image,
   });
 }
@@ -77,41 +77,98 @@ class Person {
 class PeopleGrid extends StatelessWidget {
   final List<Person> people = [
     Person(
-        name: "نظمي النصر",
-        jobTitle: "الرئيس التنفيذي، نيوم",
-        image: "assets/images/board1.jpg"),
+      name: "أيمن بن محمد المديفر",
+      jobTitle: "عضو مجلس الإدارة والعضو المنتدب والرئيس التنفيذي",
+      image: "assets/images/ayman.jpg",
+    ),
     Person(
-        name: "ديرك فان شيبندوم",
-        jobTitle: "المدير المالي، نيوم",
-        image: "assets/images/board2.jpg"),
+      name: "ريان فايز",
+      jobTitle: "نائب الرئيس التنفيذي",
+      image: "assets/images/rean.png",
+    ),
     Person(
-        name: "بيتر تيريوم",
-        jobTitle: "الرئيس التنفيذي، إينوا",
-        image: "assets/images/board3.jpg"),
+      name: "جاسر الجاسر",
+      jobTitle: "كبير التنفيذيين للحوكمة والمخاطر والالتزام",
+      image: "assets/images/jassir.jpg",
+    ),
     Person(
-        name: "أحمد الزهراني",
-        jobTitle: "مساعد وزير، وزارة الطاقة",
-        image: "assets/images/board4.jpg"),
+      name: "د. منار المنيف",
+      jobTitle: "كبيرة التنفيذيين للاستثمار",
+      image: "assets/images/manar.jpg",
+    ),
     Person(
-        name: "أحمد الخويطر",
-        jobTitle: "الرئيس التقني، أرامكو",
-        image: "assets/images/board5.jpg"),
+      name: "د. محمود اليماني",
+      jobTitle: "رئيس قطاع الصحة والرفاهية",
+      image: "assets/images/mahmoudyamni.webp",
+    ),
     Person(
-        name: "محمد السديس",
-        jobTitle:
-            "نائب الرئيس الأول، قسم الاستثمارات العقارية المحلية، صندوق الاستثمارات العامة",
-        image: "assets/images/board6.png"),
+      name: "نادر عاشور",
+      jobTitle: "كبير التنفيذيين للشؤون المالية",
+      image: "assets/images/nader-ashoor.jpg",
+    ),
+    Person(
+      name: "نيال غيبونز",
+      jobTitle: "رئيس قطاع السياحة",
+      image: "assets/images/Niall-Gibbons.jpg",
+    ),
+    Person(
+      name: "دينيس هيكي",
+      jobTitle: "كبير التنفيذيين للتطوير",
+      image: "assets/images/DenisHickey.jpg",
+    ),
+    Person(
+      name: "د. بول مارشال",
+      jobTitle: "رئيس قسم الطبيعة",
+      image: "assets/images/Paul-Marshall_AYF03551.webp",
+    ),
+    Person(
+      name: "ماجد مفتي",
+      jobTitle: "الرئيس التنفيذي لصندوق نيوم للاستثمار",
+      image: "assets/images/Majid Mufti_09.2025.jpg",
+    ),
+    Person(
+      name: "جوردي نافال",
+      jobTitle: "رئيس قطاع التقنيات الحيوية",
+      image: "assets/images/jordi-naval-leader.jpg",
+    ),
+    Person(
+      name: "ستيفان ريكيتس",
+      jobTitle: "كبير التنفيذيين للشؤون القانونية",
+      image: "assets/images/stefan-ricketts-v2.webp",
+    ),
+    Person(
+      name: "فيشال وانشو",
+      jobTitle: "الرئيس التنفيذي لأوكساجون",
+      image: "assets/images/Vishal-Wanchoo_AYF02431-1.webp",
+    ),
+    Person(
+      name: "بيتر تيريم",
+      jobTitle: "رئيس قطاع الطاقة",
+      image: "assets/images/PeterTerium.jpg",
+    ),
+    Person(
+      name: "مايكل ك. يونغ",
+      jobTitle: "مستشار قطاع التعليم والبحث والابتكار",
+      image: "assets/images/Michael-Young-2025.jpg",
+    ),
   ];
 
   PeopleGrid({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final crossAxisCount = width >= 1200
+        ? 4
+        : width >= 900
+            ? 3
+            : 2;
+
     return GridView.builder(
       padding: const EdgeInsets.all(10),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, // Number of columns
-        childAspectRatio: 3 / 4, // Aspect ratio of each item
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        childAspectRatio: 3 / 4,
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
       ),
@@ -137,13 +194,19 @@ class PeopleGrid extends StatelessWidget {
                 person.name,
                 style:
                     const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                person.jobTitle,
-                style: TextStyle(color: Colors.grey[700]),
                 textAlign: TextAlign.center,
+                textDirection: TextDirection.rtl,
               ),
+              if (person.jobTitle != null &&
+                  person.jobTitle!.trim().isNotEmpty) ...[
+                const SizedBox(height: 5),
+                Text(
+                  person.jobTitle!,
+                  style: TextStyle(color: Colors.grey[700]),
+                  textAlign: TextAlign.center,
+                  textDirection: TextDirection.rtl,
+                ),
+              ],
             ],
           ),
         );
