@@ -1,21 +1,13 @@
-//t2 Core Packages Imports
 import 'package:flutter/material.dart';
 import 'package:neon/core/Services/Auth/auth_service.dart';
+import 'package:neon/features/notifications/alarm%20code/views/home_page.dart';
 
 import '../pages/chat_page.dart';
 import '../pages/home_page.dart';
 import '../pages/images_page.dart';
 import '../pages/neom_leaders_page.dart';
 
-//t2 Dependencies Imports
-//t3 Services
-//t3 Models
-//t1 Exports
-
 class HomeScreen extends StatefulWidget {
-  // SECTION - Widget Arguments
-  //!SECTION
-  //
   const HomeScreen({super.key});
 
   @override
@@ -29,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
     "الرئيسية",
     "قادة نيوم",
     "الصور",
-    "شاشة الدردشة"
+    "شاشة الدردشة",
   ];
 
   final List<Widget> _screens = [
@@ -42,23 +34,21 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      Navigator.pop(context);
     });
+    Navigator.pop(context);
+  }
+
+  Future<void> _openAlarms() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => const AlaramHomeScreen(),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // SECTION - Build Setup
-    // Values
-    // double w = MediaQuery.of(context).size.width;",
-    // double h = MediaQuery.of(context).size.height;",
-    // Widgets
-    //
-
-    // Widgets
-    //!SECTION
-    // SECTION - Build Return
-
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -78,6 +68,13 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
           ),
+          actions: <Widget>[
+            IconButton(
+              onPressed: _openAlarms,
+              icon: const Icon(Icons.notifications_none, color: Colors.white),
+            ),
+            const SizedBox(width: 8),
+          ],
           backgroundColor: const Color(0xff343538),
         ),
         drawer: Drawer(
@@ -88,7 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: ListView(
                     padding: EdgeInsets.zero,
                     children: <Widget>[
-                      // Main Overview Section
                       ListTile(
                         leading: const Icon(Icons.home),
                         title: const Text('الرئيسية'),
@@ -118,9 +114,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     leading: const Icon(Icons.logout),
                     title: const Text('تسجيل الخروج'),
                     onTap: () async {
-                      Navigator.pop(context); // Close the drawer
+                      Navigator.pop(context);
                       await AuthService().signOut(context);
-                      // StreamBuilder in main.dart handles navigation to SignInScreen
                     },
                   ),
                 ),
@@ -132,5 +127,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-//!SECTION
 }

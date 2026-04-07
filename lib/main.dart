@@ -1,110 +1,65 @@
-// import 'package:flutter/material.dart';
-
-// import 'core/Services/App/app.service.dart';
-// import 'core/Services/Auth/auth_service.dart';
-// import 'core/Services/Firebase/firebase.service.dart';
-// import 'features/authentication/presentation/screens/sign_in.screen.dart';
-// import 'features/home/presentation/screens/home_screen.dart';
-
-// Future<void> main() async {
-//   //t2 Initialize Flutter Bindings
-//   WidgetsFlutterBinding.ensureInitialized();
-
-//   // await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [
-//   // SystemUiOverlay.top,
-//   // ]);
-//   //t2 Preserve splash screen
-//   // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-//   //FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-//   //t2 Initialize Services
-//   //
-//   await App.initialize(AppEnvironment.dev);
-//   await FirebaseService.initialize();
-
-//   //
-//   runApp(const MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       home: StreamBuilder(
-//         stream: AuthService().isUserLoggedIn(),
-//         builder: (builder, snapshot) {
-//           if (snapshot.hasData) {
-//             return const HomeScreen();
-//           } else {
-//             return const SignInScreen();
-//           }
-//         },
-//       ),
-//     );
-//   }
-// }
-
-// class MyHomePage extends StatefulWidget {
-//   const MyHomePage({super.key, required this.title});
-
-//   final String title;
-
-//   @override
-//   State<MyHomePage> createState() => _MyHomePageState();
-// }
-
-// class _MyHomePageState extends State<MyHomePage> {
-//   int _counter = 0;
-
-//   void _incrementCounter() {
-//     setState(() {
-//       _counter++;
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-//         title: Text(widget.title),
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: <Widget>[
-//             const Text(
-//               'You have pushed the button this many times:',
-//             ),
-//             Text(
-//               '$_counter',
-//               style: Theme.of(context).textTheme.headlineMedium,
-//             ),
-//           ],
-//         ),
-//       ),
-//       floatingActionButton: FloatingActionButton(
-//         onPressed: _incrementCounter,
-//         tooltip: 'Increment',
-//         child: const Icon(Icons.add),
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // ✅ مهم
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:neon/features/notifications/alarm%20code/utils/alarm_provider.dart';
+import 'package:neon/features/notifications/alarm%20code/utils/notification_helper.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+import 'package:timezone/data/latest.dart' as tz;
 import 'core/Services/App/app.service.dart';
 import 'core/Services/Auth/auth_service.dart';
 import 'core/Services/Firebase/firebase.service.dart';
 import 'features/authentication/presentation/screens/sign_in.screen.dart';
 import 'features/home/presentation/screens/home_screen.dart';
 
+final FlutterLocalNotificationsPlugin notificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // timezone
+  tz.initializeTimeZones();
+
+  // Initialize notifications
+  await NotificationHelper.init();
+
+  // Initialize timezone data
+  tz.initializeTimeZones();
+
+  await _initializeApp();
+
+  // Set preferred orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Set system UI overlay style
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => AlarmProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
+}
+
+Future<void> _initializeApp() async {
+  final status = await Permission.notification.status;
+  if (!status.isGranted) {
+    await Permission.notification.request();
+  }
 
   // ✅ تحميل ملف .env
   await dotenv.load(fileName: "dev.env");
@@ -115,8 +70,6 @@ Future<void> main() async {
 
   // 🔥 تأكيد إن القيمة اتقرت
   debugPrint("BASE URL: ${dotenv.env['NEOM_API_BASE_URL']}");
-
-  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
