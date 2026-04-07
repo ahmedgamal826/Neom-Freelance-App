@@ -79,23 +79,26 @@ class _AlaramHomeScreenState extends State<AlaramHomeScreen>
           backgroundColor: Colors.transparent,
           systemOverlayStyle: SystemUiOverlayStyle.light,
           automaticallyImplyLeading: false,
-          title: const Text(
-            'إشعارات',
-            style: TextStyle(
-              fontSize: 34,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.5,
-            ),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsetsDirectional.only(end: 6),
-              child: IconButton(
+          titleSpacing: 0,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              const Text(
+                'إشعارات',
+                style: TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(width: 4),
+              IconButton(
                 onPressed: () => Navigator.of(context).maybePop(),
                 icon: const Icon(Icons.arrow_forward_ios),
               ),
-            ),
-          ],
+              const SizedBox(width: 8),
+            ],
+          ),
         ),
         body: FadeTransition(
           opacity: _fadeController,

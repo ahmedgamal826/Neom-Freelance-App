@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:neon/features/notifications/alarm%20code/utils/alarm_provider.dart';
@@ -34,6 +33,21 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
     'Ringtone 2',
     'Ringtone 3',
   ];
+
+  String _ringtoneLabel(String value) {
+    switch (value) {
+      case 'Default':
+        return 'الافتراضي';
+      case 'Ringtone 1':
+        return 'نغمة 1';
+      case 'Ringtone 2':
+        return 'نغمة 2';
+      case 'Ringtone 3':
+        return 'نغمة 3';
+      default:
+        return value;
+    }
+  }
 
   @override
   void initState() {
@@ -100,59 +114,6 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                 child: Row(
                   children: [
-                    // Back Button
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: widget.isDarkMode
-                                ? Colors.white.withOpacity(0.08)
-                                : Colors.grey.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Icon(
-                            Icons.arrow_back_ios_new,
-                            color: widget.isDarkMode
-                                ? Colors.white
-                                : Colors.black87,
-                            size: 22,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Add New Alarm',
-                            style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: widget.isDarkMode
-                                  ? Colors.white
-                                  : const Color(0xFF1A1A1A),
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Container(
-                            width: 80,
-                            height: 4,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF2196F3),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                     // Save Button
                     Container(
                       width: 44,
@@ -188,7 +149,7 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                                       if (label == null || label!.isEmpty) {
                                         customShowSnackBar(
                                           context: context,
-                                          content: 'Please enter an alarm name',
+                                          content: 'من فضلك أدخل اسم الإشعار',
                                           backgroundColor: Colors.red,
                                         );
                                         return;
@@ -198,7 +159,7 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                                         customShowSnackBar(
                                           context: context,
                                           content:
-                                              'Please select a future time',
+                                              'من فضلك اختر وقتًا في المستقبل',
                                           backgroundColor: Colors.red,
                                         );
                                         return;
@@ -238,7 +199,7 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                                           customShowSnackBar(
                                             context: context,
                                             content:
-                                                'Alarm set for ${hoursRemaining}h ${minutesRemaining}m from now.',
+                                                'تم ضبط الإشعار بعد ${hoursRemaining} ساعة و${minutesRemaining} دقيقة من الآن.',
                                             backgroundColor:
                                                 const Color(0xFF2196F3),
                                           );
@@ -254,6 +215,67 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                               ),
                             ),
                     ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'إضافة إشعار جديد',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold,
+                                    color: widget.isDarkMode
+                                        ? Colors.white
+                                        : const Color(0xFF1A1A1A),
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Container(
+                                  width: 80,
+                                  height: 4,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF2196F3),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Back Button
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              onTap: () => Navigator.pop(context),
+                              child: Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: widget.isDarkMode
+                                      ? Colors.white.withOpacity(0.08)
+                                      : Colors.grey.withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Icon(
+                                  Icons.arrow_forward_ios,
+                                  color: widget.isDarkMode
+                                      ? Colors.white
+                                      : Colors.black87,
+                                  size: 22,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -264,15 +286,16 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       ModernInputCard(
                         isDarkMode: widget.isDarkMode,
                         icon: Icons.label_outline,
-                        title: 'Alarm Name',
+                        title: 'اسم الإشعار',
                         child: TextField(
                           cursorColor: const Color(0xFF2196F3),
                           onChanged: (value) => setState(() => label = value),
+                          textAlign: TextAlign.right,
                           style: TextStyle(
                             color: widget.isDarkMode
                                 ? Colors.white
@@ -281,7 +304,8 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                             fontWeight: FontWeight.w500,
                           ),
                           decoration: InputDecoration(
-                            hintText: 'Enter alarm name...',
+                            hintText: 'أدخل اسم الإشعار...',
+                            alignLabelWithHint: true,
                             hintStyle: TextStyle(
                               color: widget.isDarkMode
                                   ? Colors.white70
@@ -297,7 +321,7 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                       ModernInputCard(
                         isDarkMode: widget.isDarkMode,
                         icon: Icons.access_time_filled,
-                        title: 'Alarm Time',
+                        title: 'وقت الإشعار',
                         child: Container(
                           height: 200,
                           child: CupertinoTheme(
@@ -346,7 +370,7 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                       ModernInputCard(
                         isDarkMode: widget.isDarkMode,
                         icon: Icons.music_note,
-                        title: 'Ringtone',
+                        title: 'نغمة الإشعار',
                         child: DropdownButtonFormField<String>(
                           value: selectedRingtone,
                           dropdownColor: widget.isDarkMode
@@ -360,7 +384,7 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                             fontWeight: FontWeight.w500,
                           ),
                           decoration: InputDecoration(
-                            hintText: 'Select ringtone',
+                            hintText: 'اختر النغمة',
                             hintStyle: TextStyle(
                               color: widget.isDarkMode
                                   ? Colors.white70
@@ -396,7 +420,8 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                             return DropdownMenuItem<String>(
                               value: ringtone,
                               child: Text(
-                                ringtone,
+                                _ringtoneLabel(ringtone),
+                                textAlign: TextAlign.right,
                                 style: TextStyle(
                                   color: widget.isDarkMode
                                       ? Colors.white
@@ -416,7 +441,7 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                       ModernInputCard(
                         isDarkMode: widget.isDarkMode,
                         icon: Icons.snooze,
-                        title: 'Snooze Duration',
+                        title: 'مدة الغفوة',
                         child: DropdownButtonFormField<int>(
                           value: selectedSnooze,
                           dropdownColor: widget.isDarkMode
@@ -430,7 +455,7 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                             fontWeight: FontWeight.w500,
                           ),
                           decoration: InputDecoration(
-                            hintText: 'Select snooze duration',
+                            hintText: 'اختر مدة الغفوة',
                             hintStyle: TextStyle(
                               color: widget.isDarkMode
                                   ? Colors.white70
@@ -465,7 +490,10 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                           items: [5, 10, 15].map((int value) {
                             return DropdownMenuItem<int>(
                               value: value,
-                              child: Text('$value minutes'),
+                              child: Text(
+                                '$value دقائق',
+                                textAlign: TextAlign.right,
+                              ),
                             );
                           }).toList(),
                           onChanged: (int? value) {
@@ -478,12 +506,13 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                       ModernInputCard(
                         isDarkMode: widget.isDarkMode,
                         icon: Icons.repeat,
-                        title: 'Repeat Daily',
+                        title: 'تكرار يومي',
                         child: Row(
                           children: [
                             Expanded(
                               child: Text(
-                                'Repeat this alarm every day',
+                                'كرر هذا الإشعار كل يوم',
+                                textAlign: TextAlign.right,
                                 style: TextStyle(
                                   color: widget.isDarkMode
                                       ? Colors.white.withOpacity(0.8)

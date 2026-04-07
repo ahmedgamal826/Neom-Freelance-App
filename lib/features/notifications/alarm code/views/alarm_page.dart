@@ -334,9 +334,9 @@ class _AlarmPageState extends State<AlarmPage> with TickerProviderStateMixin {
 
                                 String dateText = '';
                                 if (isToday) {
-                                  dateText = 'Today';
+                                  dateText = 'يوميًا';
                                 } else if (isTomorrow) {
-                                  dateText = 'Tomorrow';
+                                  dateText = 'غدًا';
                                 } else {
                                   dateText =
                                       DateFormat('MMM d').format(alarmTime);
@@ -473,27 +473,53 @@ class _AlarmPageState extends State<AlarmPage> with TickerProviderStateMixin {
                                                     activeColor: Colors.blue,
                                                   ),
                                                   const SizedBox(width: 12),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        DateFormat('hh:mm a')
+                                                            .format(alarmTime),
+                                                        style: TextStyle(
+                                                          fontSize: 24,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: widget
+                                                                  .isDarkMode
+                                                              ? Colors.white
+                                                              : Colors.black,
+                                                        ),
+                                                      ),
+                                                      if (alarm.repeat !=
+                                                              null &&
+                                                          alarm.repeat!
+                                                              .isNotEmpty)
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(top: 6),
+                                                          child: Text(
+                                                            'التكرار: ${alarm.repeat == 'daily' ? 'يومي' : 'مرة واحدة'}',
+                                                            style: TextStyle(
+                                                              fontSize: 14,
+                                                              color: widget
+                                                                      .isDarkMode
+                                                                  ? Colors
+                                                                      .grey[400]
+                                                                  : Colors.grey[
+                                                                      600],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(width: 12),
                                                   Expanded(
                                                     child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment.end,
                                                       children: [
-                                                        Text(
-                                                          DateFormat('hh:mm a')
-                                                              .format(
-                                                                  alarmTime),
-                                                          style: TextStyle(
-                                                            fontSize: 24,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            color: widget
-                                                                    .isDarkMode
-                                                                ? Colors.white
-                                                                : Colors.black,
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 12),
                                                         Expanded(
                                                           child: Column(
                                                             crossAxisAlignment:
@@ -559,23 +585,6 @@ class _AlarmPageState extends State<AlarmPage> with TickerProviderStateMixin {
                                                   ),
                                                 ],
                                               ),
-                                              if (alarm.repeat != null &&
-                                                  alarm.repeat!.isNotEmpty)
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 8.0),
-                                                  child: Text(
-                                                    'Repeat: ${alarm.repeat}',
-                                                    textAlign: TextAlign.right,
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: widget.isDarkMode
-                                                          ? Colors.grey[400]
-                                                          : Colors.grey[600],
-                                                    ),
-                                                  ),
-                                                ),
                                             ],
                                           ),
                                         ),
