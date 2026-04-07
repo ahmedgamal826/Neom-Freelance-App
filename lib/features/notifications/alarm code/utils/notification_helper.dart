@@ -162,7 +162,7 @@ class NotificationHelper {
       await scheduleNotification(
         id: id!,
         title: 'Alarm',
-        body: 'Time to wake up!',
+        body: 'إشعار من مشروع نيوم',
         scheduledDate: now.add(Duration(minutes: snoozeDuration)),
         snoozeDuration: snoozeDuration,
         ringtone: ringtone,

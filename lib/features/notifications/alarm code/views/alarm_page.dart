@@ -253,7 +253,7 @@ class _AlarmPageState extends State<AlarmPage> with TickerProviderStateMixin {
       await _scheduleNotification(
         newDateTime,
         'Alarm',
-        'Time to wake up!',
+        'إشعار من مشروع نيوم',
       );
 
       Duration remainingTime = newDateTime.difference(DateTime.now());

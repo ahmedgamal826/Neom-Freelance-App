@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:neon/features/notifications/alarm%20code/utils/alarm_provider.dart';
+import 'package:neon/features/notifications/data/neom_messages.dart';
 import 'package:neon/features/notifications/alarm%20code/widgets/modern_input_container.dart';
 import 'package:neon/features/notifications/alarm%20code/widgets/show_snack_bar.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +17,6 @@ class AddAlarm extends StatefulWidget {
 }
 
 class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
-  String? label;
   late DateTime selectedDateTime;
   bool isDailyRepeat = false;
   String selectedRingtone = 'Default';
@@ -47,6 +47,19 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
       default:
         return value;
     }
+  }
+
+  int _dayOfYear(DateTime date) {
+    final firstDayOfYear = DateTime(date.year, 1, 1);
+    return date.difference(firstDayOfYear).inDays + 1;
+  }
+
+  String _messageForDate(DateTime date) {
+    if (neomMessages.isEmpty) {
+      return 'إشعار يومي من نيوم';
+    }
+    final index = (_dayOfYear(date) - 1) % neomMessages.length;
+    return neomMessages[index];
   }
 
   @override
@@ -146,14 +159,6 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                               onPressed: isSaving
                                   ? null
                                   : () async {
-                                      if (label == null || label!.isEmpty) {
-                                        customShowSnackBar(
-                                          context: context,
-                                          content: 'من فضلك أدخل اسم الإشعار',
-                                          backgroundColor: Colors.red,
-                                        );
-                                        return;
-                                      }
                                       if (selectedDateTime
                                           .isBefore(DateTime.now())) {
                                         customShowSnackBar(
@@ -165,6 +170,8 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                                         return;
                                       }
                                       setState(() => isSaving = true);
+                                      final generatedLabel =
+                                          _messageForDate(selectedDateTime);
                                       Navigator.pop(context);
                                       Future(() async {
                                         final alarmProvider =
@@ -173,7 +180,7 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                                           listen: false,
                                         );
                                         await alarmProvider.setAlarm(
-                                          label: label,
+                                          label: generatedLabel,
                                           dateTime: selectedDateTime
                                               .toIso8601String(),
                                           alarmDate: selectedDateTime
@@ -291,30 +298,27 @@ class _AddAlarmState extends State<AddAlarm> with TickerProviderStateMixin {
                       ModernInputCard(
                         isDarkMode: widget.isDarkMode,
                         icon: Icons.label_outline,
-                        title: 'اسم الإشعار',
-                        child: TextField(
-                          cursorColor: const Color(0xFF2196F3),
-                          onChanged: (value) => setState(() => label = value),
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
+                        title: 'رسالة الإشعار',
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
                             color: widget.isDarkMode
-                                ? Colors.white
-                                : Colors.black87,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
+                                ? Colors.white.withOpacity(0.04)
+                                : Colors.black.withOpacity(0.04),
                           ),
-                          decoration: InputDecoration(
-                            hintText: 'أدخل اسم الإشعار...',
-                            alignLabelWithHint: true,
-                            hintStyle: TextStyle(
+                          child: Text(
+                            _messageForDate(selectedDateTime),
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
                               color: widget.isDarkMode
-                                  ? Colors.white70
-                                  : Colors.black54,
+                                  ? Colors.white
+                                  : Colors.black87,
                               fontSize: 16,
+                              fontWeight: FontWeight.w500,
                             ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
                           ),
                         ),
                       ),

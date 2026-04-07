@@ -65,7 +65,7 @@ class AlarmProvider extends ChangeNotifier {
       await NotificationHelper.scheduleNotification(
         id: id,
         title: label ?? 'Alarm',
-        body: 'Time to wake up!',
+        body: 'إشعار من مشروع نيوم',
         scheduledDate: DateTime.parse(dateTime),
         ringtone: ringtone,
         snoozeDuration: snoozeDuration,
@@ -87,7 +87,7 @@ class AlarmProvider extends ChangeNotifier {
         await NotificationHelper.scheduleNotification(
           id: _alarmList[index].id,
           title: _alarmList[index].label ?? 'Alarm',
-          body: 'Time to wake up!',
+          body: 'إشعار من مشروع نيوم',
           scheduledDate: DateTime.parse(_alarmList[index].dateTime),
           ringtone: _alarmList[index].ringtone,
           snoozeDuration: _alarmList[index].snoozeDuration,
@@ -192,7 +192,7 @@ class AlarmProvider extends ChangeNotifier {
         await NotificationHelper.scheduleNotification(
           id: alarm.id,
           title: alarm.label ?? 'Alarm',
-          body: 'Time to wake up!',
+          body: 'إشعار من مشروع نيوم',
           scheduledDate: DateTime.parse(alarm.dateTime),
           ringtone: alarm.ringtone,
           snoozeDuration: alarm.snoozeDuration,
