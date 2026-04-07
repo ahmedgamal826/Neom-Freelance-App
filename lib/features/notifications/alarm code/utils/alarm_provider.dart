@@ -16,6 +16,37 @@ class AlarmProvider extends ChangeNotifier {
     _initializeSharedPreferences();
   }
 
+  // Mark an alarm as read by ID
+  Future<void> markAsReadById(int id) async {
+    final int index = _alarmList.indexWhere((a) => a.id == id);
+    if (index >= 0 && !_alarmList[index].isRead) {
+      _alarmList[index].isRead = true;
+      await setData();
+      notifyListeners();
+    }
+  }
+
+  // Sorted copy; if todayOnly is true, filter to today's items only
+  List<AlarmModel> getSorted({bool todayOnly = false}) {
+    final List<AlarmModel> items = List<AlarmModel>.from(_alarmList);
+    items.sort((a, b) {
+      final da = DateTime.tryParse(a.dateTime) ?? DateTime.now();
+      final db = DateTime.tryParse(b.dateTime) ?? DateTime.now();
+      return da.compareTo(db);
+    });
+    if (todayOnly) {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      return items.where((a) {
+        final d = DateTime.tryParse(a.dateTime);
+        if (d == null) return false;
+        final dd = DateTime(d.year, d.month, d.day);
+        return dd == today;
+      }).toList();
+    }
+    return items;
+  }
+
   Future<void> _initializeSharedPreferences() async {
     try {
       debugPrint('Initializing SharedPreferences...');

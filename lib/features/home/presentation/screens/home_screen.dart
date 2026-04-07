@@ -69,10 +69,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           actions: <Widget>[
-            IconButton(
-              onPressed: _openAlarms,
-              icon: const Icon(Icons.notifications_none, color: Colors.white),
-            ),
+            // IconButton(
+            //   onPressed: _openAlarms,
+            //   icon: const Icon(Icons.notifications_none, color: Colors.white),
+            // ),
             const SizedBox(width: 8),
           ],
           backgroundColor: const Color(0xff343538),

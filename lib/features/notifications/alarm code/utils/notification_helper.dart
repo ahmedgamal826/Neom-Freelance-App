@@ -3,6 +3,8 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart'; // Added for SharedPreferences
+import 'dart:math';
+import 'package:neon/features/notifications/data/neom_messages.dart';
 
 class NotificationHelper {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -179,5 +181,158 @@ class NotificationHelper {
 
   static Future<void> cancelAllNotifications() async {
     await flutterLocalNotificationsPlugin.cancelAll();
+  }
+
+  // ---------- NEOM daily auto messages ----------
+  static int _dateKey(DateTime d) => d.year * 10000 + d.month * 100 + d.day;
+
+  // Deterministic per-day shuffle to keep same messages for the same date
+  static List<String> _dailyMessages(DateTime date) {
+    // Lazy import to avoid tight coupling if file missing in tests
+    try {
+      // ignore: unnecessary_import
+    } catch (_) {}
+    // We'll import at top of file
+    return _neomDailyPicker(date);
+  }
+
+  // using an inner function so we can call Random with seed
+  static List<String> _neomDailyPicker(DateTime date) {
+    // This function requires neomMessages to be available
+    // Import is at the top of the file
+    // ignore: invalid_use_of_internal_member
+    return _shuffleWithSeed(neomMessages, _dateKey(date));
+  }
+
+  // Pure function: returns a new shuffled copy using a seed
+  static List<String> _shuffleWithSeed(List<String> input, int seed) {
+    final list = List<String>.from(input);
+    list.shuffle(Random(seed));
+    return list;
+  }
+
+  // Schedule two notifications per day (10:00 and 17:00) for the next [daysAhead]
+  // Each day picks two different messages from neomMessages in a deterministic order.
+  static Future<void> scheduleNeomDailyAuto({int daysAhead = 60}) async {
+    // Cancel any previously scheduled NEOM auto notifications for the range
+    // We use id = 91000000 + yyyymmdd for 10:00 and 92000000 + yyyymmdd for 17:00
+    final pending =
+        await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+    for (final p in pending) {
+      if (p.id >= 91000000 && p.id <= 92999999) {
+        await flutterLocalNotificationsPlugin.cancel(p.id);
+      }
+    }
+
+    final now = DateTime.now();
+    for (int i = 0; i < daysAhead; i++) {
+      final day = DateTime(now.year, now.month, now.day).add(Duration(days: i));
+      final msgs = _dailyMessages(day);
+      if (msgs.isEmpty) continue;
+      final msg1 = msgs[0];
+      final msg2 = msgs.length > 1 ? msgs[1] : msgs[0];
+
+      final dateKey = _dateKey(day);
+      // 10:00
+      final tenAm = DateTime(day.year, day.month, day.day, 10, 0);
+      await scheduleNotification(
+        id: 91000000 + dateKey,
+        title: msg1,
+        body: 'إشعار من مشروع نيوم',
+        scheduledDate: tenAm,
+        repeatDaily: false,
+      );
+      // 17:00
+      final fivePm = DateTime(day.year, day.month, day.day, 17, 0);
+      await scheduleNotification(
+        id: 92000000 + dateKey,
+        title: msg2,
+        body: 'إشعار من مشروع نيوم',
+        scheduledDate: fivePm,
+        repeatDaily: false,
+      );
+    }
+  }
+
+  // Sync auto NEOM cards: show ONLY today's due items (<= now). Remove others.
+  static Future<void> syncNeomAutoCardsForNow() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? alarmsJson = prefs.getString('alarms');
+      List<dynamic> list = [];
+      if (alarmsJson != null) {
+        try {
+          list = json.decode(alarmsJson);
+        } catch (_) {}
+      }
+      // Keep only today's due auto items; drop all other auto items (future and past days)
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      list = list.where((a) {
+        if (a is! Map) return true;
+        final int? id = a['id'];
+        if (id == null) return true;
+        if (id >= 91000000 && id <= 92999999) {
+          final String? dt = a['dateTime'];
+          if (dt == null) return false;
+          final DateTime? d = DateTime.tryParse(dt);
+          if (d == null) return false;
+          final DateTime dd = DateTime(d.year, d.month, d.day);
+          final bool isToday = dd == today;
+          final bool isDue = d.isBefore(now) || d.isAtSameMomentAs(now);
+          return isToday && isDue;
+        }
+        return true;
+      }).toList();
+
+      // Add today's due auto items if clock passed
+      final msgs = _dailyMessages(today);
+      if (msgs.isNotEmpty) {
+        final tenAm = DateTime(today.year, today.month, today.day, 10, 0);
+        if (now.isAfter(tenAm)) {
+          final id = 91000000 + _dateKey(today);
+          final exists = list.any((a) => a is Map && a['id'] == id);
+          if (!exists) {
+            list.add({
+              'label': msgs[0],
+              'dateTime': tenAm.toIso8601String(),
+              'alarmDate': tenAm.toIso8601String(),
+              'isActive': true,
+              'isRead': false,
+              'repeat': 'once',
+              'id': id,
+              'milliseconds': tenAm.millisecondsSinceEpoch,
+              'ringtone': null,
+              'snoozeDuration': 5,
+            });
+          }
+        }
+        if (msgs.length > 1) {
+          final fivePm = DateTime(today.year, today.month, today.day, 17, 0);
+          if (now.isAfter(fivePm)) {
+            final id = 92000000 + _dateKey(today);
+            final exists = list.any((a) => a is Map && a['id'] == id);
+            if (!exists) {
+              list.add({
+                'label': msgs[1],
+                'dateTime': fivePm.toIso8601String(),
+                'alarmDate': fivePm.toIso8601String(),
+                'isActive': true,
+                'isRead': false,
+                'repeat': 'once',
+                'id': id,
+                'milliseconds': fivePm.millisecondsSinceEpoch,
+                'ringtone': null,
+                'snoozeDuration': 5,
+              });
+            }
+          }
+        }
+      }
+
+      await prefs.setString('alarms', json.encode(list));
+    } catch (e) {
+      debugPrint('Failed to sync auto cards: $e');
+    }
   }
 }

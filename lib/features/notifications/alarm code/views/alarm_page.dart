@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:neon/features/notifications/alarm%20code/utils/alarm_provider.dart';
 import 'package:neon/features/notifications/alarm%20code/utils/notification_helper.dart';
-import 'package:neon/features/notifications/alarm%20code/views/add_alarm.dart';
 import 'package:neon/features/notifications/alarm%20code/widgets/show_snack_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -28,14 +27,20 @@ class _AlarmPageState extends State<AlarmPage> with TickerProviderStateMixin {
   late AnimationController _cardController;
   late AnimationController _fadeController;
   late AnimationController _slideController;
+  bool _todayOnly = false;
 
   @override
   void initState() {
     super.initState();
     _initializeNotifications();
     _initializeAnimations();
-    // Start card animation when page loads
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Sync due auto NEOM cards (adds only if time has passed) then reload provider
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await NotificationHelper.syncNeomAutoCardsForNow();
+      if (mounted) {
+        // ignore: use_build_context_synchronously
+        await Provider.of<AlarmProvider>(context, listen: false).getData();
+      }
       _cardController.forward();
       _fadeController.forward();
       _slideController.forward();
@@ -280,6 +285,26 @@ class _AlarmPageState extends State<AlarmPage> with TickerProviderStateMixin {
             padding: const EdgeInsets.only(top: 8),
             child: Column(
               children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        'اليوم فقط',
+                        style: TextStyle(
+                          color: widget.isDarkMode ? Colors.white70 : Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Switch(
+                        value: _todayOnly,
+                        onChanged: (v) => setState(() => _todayOnly = v),
+                        activeColor: Colors.blue,
+                      ),
+                    ],
+                  ),
+                ),
                 Expanded(
                   child: alarmProvider.isLoading
                       ? ListView.builder(
@@ -290,21 +315,15 @@ class _AlarmPageState extends State<AlarmPage> with TickerProviderStateMixin {
                                 isDarkMode: widget.isDarkMode);
                           },
                         )
-                      : alarmProvider.alarmList.isEmpty
+                      : alarmProvider.getSorted(todayOnly: _todayOnly).isEmpty
                           ? Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
-                                    Icons.alarm_off,
-                                    size: 80,
-                                    color: widget.isDarkMode
-                                        ? Colors.white54
-                                        : Colors.black54,
-                                  ),
+                                  const Icon(Icons.notifications_off, size: 80, color: Colors.grey),
                                   const SizedBox(height: 16),
                                   Text(
-                                    'No alarms set',
+                                    'لا توجد إشعارات',
                                     style: TextStyle(
                                       fontSize: 20,
                                       color: widget.isDarkMode
@@ -318,9 +337,11 @@ class _AlarmPageState extends State<AlarmPage> with TickerProviderStateMixin {
                           : ListView.builder(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 16),
-                              itemCount: alarmProvider.alarmList.length,
+                              itemCount:
+                                  alarmProvider.getSorted(todayOnly: _todayOnly).length,
                               itemBuilder: (context, index) {
-                                final alarm = alarmProvider.alarmList[index];
+                                final alarm = alarmProvider
+                                    .getSorted(todayOnly: _todayOnly)[index];
                                 final alarmTime =
                                     DateTime.parse(alarm.dateTime);
                                 final now = DateTime.now();
@@ -445,16 +466,22 @@ class _AlarmPageState extends State<AlarmPage> with TickerProviderStateMixin {
                                       }
                                     },
                                     child: Card(
-                                      elevation: 4,
+                                      elevation: alarm.isRead ? 2 : 6,
                                       margin: const EdgeInsets.symmetric(
                                           vertical: 8),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(15),
                                       ),
-                                      color: widget.isDarkMode
-                                          ? Colors.grey[850]
-                                          : Colors.white,
+                                      color: alarm.isRead
+                                          ? (widget.isDarkMode
+                                              ? Colors.grey[850]
+                                              : Colors.white)
+                                          : (widget.isDarkMode
+                                              ? const Color(0xFF1E2A33)
+                                              : const Color(0xFFE9F2FF)),
                                       child: InkWell(
+                                        onTap: () => alarmProvider
+                                            .markAsReadById(alarm.id),
                                         borderRadius: BorderRadius.circular(15),
                                         child: Padding(
                                           padding: const EdgeInsets.all(16.0),
@@ -464,15 +491,6 @@ class _AlarmPageState extends State<AlarmPage> with TickerProviderStateMixin {
                                             children: [
                                               Row(
                                                 children: [
-                                                  Switch(
-                                                    value: alarm.isActive,
-                                                    onChanged: (value) {
-                                                      alarmProvider
-                                                          .toggleAlarm(index);
-                                                    },
-                                                    activeColor: Colors.blue,
-                                                  ),
-                                                  const SizedBox(width: 12),
                                                   Column(
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment
@@ -598,27 +616,7 @@ class _AlarmPageState extends State<AlarmPage> with TickerProviderStateMixin {
               ],
             ),
           ),
-          // أضف زر الإضافة كـ FloatingActionButton
-          floatingActionButton: FloatingActionButton(
-            backgroundColor: const Color(0xFF2196F3),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddAlarm(isDarkMode: widget.isDarkMode),
-                ),
-              );
-            },
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            elevation: 4,
-            child: Icon(
-              Icons.add,
-              color: widget.isDarkMode ? Colors.white : Colors.white,
-              size: 28,
-            ),
-          ),
+          // لا يوجد زر إضافة — الإشعارات تُنشأ تلقائيًا
         );
       },
     );

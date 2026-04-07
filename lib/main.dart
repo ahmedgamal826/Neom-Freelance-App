@@ -28,6 +28,8 @@ Future<void> main() async {
   tz.initializeTimeZones();
 
   await _initializeApp();
+  // Schedule NEOM auto notifications for the next 60 days BEFORE runApp
+  await NotificationHelper.scheduleNeomDailyAuto(daysAhead: 60);
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
