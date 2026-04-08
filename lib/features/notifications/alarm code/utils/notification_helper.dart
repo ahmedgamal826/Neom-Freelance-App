@@ -254,6 +254,61 @@ class NotificationHelper {
     }
   }
 
+  // Schedules only when not already scheduled far enough to avoid blocking UI repeatedly
+  static Future<void> ensureNeomDailyScheduled({int daysAhead = 60}) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? iso = prefs.getString('neom_scheduled_until');
+      final DateTime? savedUntil = iso != null ? DateTime.tryParse(iso) : null;
+      final DateTime target = DateTime.now().add(Duration(days: daysAhead));
+      if (savedUntil != null && savedUntil.isAfter(target)) {
+        // Already scheduled far enough
+        return;
+      }
+      await scheduleNeomDailyAuto(daysAhead: daysAhead);
+      await prefs.setString('neom_scheduled_until', target.toIso8601String());
+    } catch (e) {
+      debugPrint('ensureNeomDailyScheduled error: $e');
+    }
+  }
+
+  // Show notification immediately (for background callbacks)
+  static Future<void> showNow({
+    required String title,
+    required String body,
+  }) async {
+    try {
+      final androidDetails = AndroidNotificationDetails(
+        'neom_auto_now',
+        'NEOM Auto Now',
+        channelDescription: 'Immediate NEOM messages',
+        importance: Importance.max,
+        priority: Priority.high,
+        enableLights: true,
+        enableVibration: true,
+        playSound: true,
+      );
+      final iOSDetails = const DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
+      final details =
+          NotificationDetails(android: androidDetails, iOS: iOSDetails);
+      await flutterLocalNotificationsPlugin.show(
+        DateTime.now().millisecondsSinceEpoch.remainder(1000000),
+        title,
+        body,
+        details,
+      );
+    } catch (e) {
+      debugPrint('showNow error: $e');
+    }
+  }
+
+  // workmanager scheduling removed; using 30-day local scheduling instead
+  // removed old android_alarm_manager_plus paths
+
   // Sync auto NEOM cards: show ONLY today's due items (<= now). Remove others.
   static Future<void> syncNeomAutoCardsForNow() async {
     try {

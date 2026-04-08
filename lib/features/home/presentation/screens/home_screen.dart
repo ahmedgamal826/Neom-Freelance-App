@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:neon/core/Services/Auth/auth_service.dart';
-import 'package:neon/features/notifications/alarm%20code/views/home_page.dart';
+// import 'package:neon/features/notifications/alarm%20code/views/home_page.dart';
+import 'package:neon/features/notifications/alarm%20code/utils/notification_helper.dart';
 
 import '../pages/chat_page.dart';
 import '../pages/home_page.dart';
@@ -38,14 +39,18 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.pop(context);
   }
 
-  Future<void> _openAlarms() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) => const AlaramHomeScreen(),
-      ),
-    );
+  @override
+  void initState() {
+    super.initState();
+    // Schedule NEOM auto notifications only after the home screen opens (30 يوم)
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // لا نحجب أول فريم
+      // ignore: unawaited_futures
+      NotificationHelper.ensureNeomDailyScheduled(daysAhead: 30);
+    });
   }
+
+  // _openAlarms لم تعد مستخدمة
 
   @override
   Widget build(BuildContext context) {
