@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:neon/features/notifications/alarm%20code/utils/alarm_provider.dart';
 import 'package:neon/features/notifications/alarm%20code/utils/notification_helper.dart';
+import 'package:neon/features/notifications/alarm%20code/widgets/alarm_card_shimmer.dart';
 import 'package:neon/features/notifications/alarm%20code/widgets/show_snack_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
-
-import '../widgets/alarm_card_shimmer.dart';
 
 class AlarmPage extends StatefulWidget {
   final bool isDarkMode;
@@ -293,7 +292,9 @@ class _AlarmPageState extends State<AlarmPage> with TickerProviderStateMixin {
                       Text(
                         'اليوم فقط',
                         style: TextStyle(
-                          color: widget.isDarkMode ? Colors.white70 : Colors.black54,
+                          color: widget.isDarkMode
+                              ? Colors.white70
+                              : Colors.black54,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -320,7 +321,8 @@ class _AlarmPageState extends State<AlarmPage> with TickerProviderStateMixin {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.notifications_off, size: 80, color: Colors.grey),
+                                  const Icon(Icons.notifications_off,
+                                      size: 80, color: Colors.grey),
                                   const SizedBox(height: 16),
                                   Text(
                                     'لا توجد إشعارات',
@@ -337,11 +339,12 @@ class _AlarmPageState extends State<AlarmPage> with TickerProviderStateMixin {
                           : ListView.builder(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 16),
-                              itemCount:
-                                  alarmProvider.getSorted(todayOnly: _todayOnly).length,
+                              itemCount: alarmProvider
+                                  .getSorted(todayOnly: _todayOnly)
+                                  .length,
                               itemBuilder: (context, index) {
-                                final alarm = alarmProvider
-                                    .getSorted(todayOnly: _todayOnly)[index];
+                                final alarm = alarmProvider.getSorted(
+                                    todayOnly: _todayOnly)[index];
                                 final alarmTime =
                                     DateTime.parse(alarm.dateTime);
                                 final now = DateTime.now();

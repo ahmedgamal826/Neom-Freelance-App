@@ -33,34 +33,34 @@ class AnimationTitle extends StatelessWidget {
             textDirection: TextDirection.rtl,
             child: Align(
               alignment: Alignment.centerRight,
-              child: Column(
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    animationTitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  children: [
+                    Text(
+                      animationTitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.right,
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color:
-                          isDarkMode ? Colors.white : const Color(0xFF1A1A1A),
-                      letterSpacing: 1.2,
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color:
+                            isDarkMode ? Colors.white : const Color(0xFF1A1A1A),
+                        letterSpacing: 1.2,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    width: 60,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2196F3),
-                      borderRadius: BorderRadius.circular(2),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: 60,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2196F3),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
           ),
         ),
       ),

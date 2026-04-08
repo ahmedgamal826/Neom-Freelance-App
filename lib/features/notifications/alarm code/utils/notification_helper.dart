@@ -188,19 +188,7 @@ class NotificationHelper {
 
   // Deterministic per-day shuffle to keep same messages for the same date
   static List<String> _dailyMessages(DateTime date) {
-    // Lazy import to avoid tight coupling if file missing in tests
-    try {
-      // ignore: unnecessary_import
-    } catch (_) {}
-    // We'll import at top of file
-    return _neomDailyPicker(date);
-  }
-
-  // using an inner function so we can call Random with seed
-  static List<String> _neomDailyPicker(DateTime date) {
-    // This function requires neomMessages to be available
-    // Import is at the top of the file
-    // ignore: invalid_use_of_internal_member
+    // Seeded shuffle keeps same 2 messages for the same calendar day.
     return _shuffleWithSeed(neomMessages, _dateKey(date));
   }
 
@@ -255,15 +243,29 @@ class NotificationHelper {
   }
 
   // Schedules only when not already scheduled far enough to avoid blocking UI repeatedly
-  static Future<void> ensureNeomDailyScheduled({int daysAhead = 60}) async {
+  // forceReschedule=true سيتخطّى التحقق ويعيد الجدولة حسب daysAhead
+  static Future<void> ensureNeomDailyScheduled({
+    int daysAhead = 60,
+    bool forceReschedule = false,
+  }) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final String? iso = prefs.getString('neom_scheduled_until');
       final DateTime? savedUntil = iso != null ? DateTime.tryParse(iso) : null;
       final DateTime target = DateTime.now().add(Duration(days: daysAhead));
-      if (savedUntil != null && savedUntil.isAfter(target)) {
+      if (!forceReschedule &&
+          savedUntil != null &&
+          savedUntil.isAfter(target)) {
         // Already scheduled far enough
         return;
+      }
+      // الغِ أي إشعارات NEOM قديمة ضمن نطاقنا لتفادي الازدواج
+      final pending =
+          await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+      for (final p in pending) {
+        if (p.id >= 91000000 && p.id <= 92999999) {
+          await flutterLocalNotificationsPlugin.cancel(p.id);
+        }
       }
       await scheduleNeomDailyAuto(daysAhead: daysAhead);
       await prefs.setString('neom_scheduled_until', target.toIso8601String());

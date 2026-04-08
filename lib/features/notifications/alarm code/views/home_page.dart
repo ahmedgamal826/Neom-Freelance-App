@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:neon/features/notifications/alarm%20code/views/alarm_page.dart';
-import 'package:neon/features/notifications/alarm%20code/views/notification_Screen.dart';
+import 'package:neon/features/notifications/alarm%20code/views/notification_screen.dart';
 import 'package:neon/features/notifications/alarm%20code/views/timer_page.dart';
 import 'package:flutter/services.dart';
 
