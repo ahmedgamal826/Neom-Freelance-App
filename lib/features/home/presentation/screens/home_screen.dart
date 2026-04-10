@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:neon/core/locale/app_localizations.dart';
+import 'package:neon/core/locale/locale_provider.dart';
 import 'package:neon/core/Services/Auth/auth_service.dart';
+import 'package:neon/core/widgets/language_toggle_button.dart';
+import 'package:provider/provider.dart';
 import 'package:neon/features/notifications/alarm%20code/utils/notification_helper.dart';
 import '../pages/chat_page.dart';
 import '../pages/home_page.dart';
@@ -15,13 +19,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-
-  final List<String> _titles = [
-    "الرئيسية",
-    "قادة نيوم",
-    "الصور",
-    "شاشة الدردشة",
-  ];
 
   final List<Widget> _screens = [
     const HomePage(),
@@ -55,13 +52,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
+    final l10n =
+        AppLocalizations(context.watch<LocaleProvider>().locale);
+    final titles = <String>[
+      l10n.navHome,
+      l10n.navLeaders,
+      l10n.navImages,
+      l10n.navChat,
+    ];
+    return Scaffold(
         backgroundColor: const Color(0xff343538),
         appBar: AppBar(
           title: Text(
-            _titles[_selectedIndex],
+            titles[_selectedIndex],
             style: const TextStyle(color: Colors.white),
           ),
           centerTitle: true,
@@ -75,10 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           actions: <Widget>[
-            // IconButton(
-            //   onPressed: _openAlarms,
-            //   icon: const Icon(Icons.notifications_none, color: Colors.white),
-            // ),
+            LanguageToggleButton(iconColor: Colors.white),
             const SizedBox(width: 8),
           ],
           backgroundColor: const Color(0xff343538),
@@ -93,22 +93,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: <Widget>[
                       ListTile(
                         leading: const Icon(Icons.home),
-                        title: const Text('الرئيسية'),
+                        title: Text(l10n.navHome),
                         onTap: () => _onItemTapped(0),
                       ),
                       ListTile(
                         leading: const Icon(Icons.people),
-                        title: const Text('قادة نيوم'),
+                        title: Text(l10n.navLeaders),
                         onTap: () => _onItemTapped(1),
                       ),
                       ListTile(
                         leading: const Icon(Icons.photo_library),
-                        title: const Text('الصور'),
+                        title: Text(l10n.navImages),
                         onTap: () => _onItemTapped(2),
                       ),
                       ListTile(
                         leading: const Icon(Icons.chat),
-                        title: const Text('شاشة الدردشة'),
+                        title: Text(l10n.navChat),
                         onTap: () => _onItemTapped(3),
                       ),
                     ],
@@ -118,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   child: ListTile(
                     leading: const Icon(Icons.logout),
-                    title: const Text('تسجيل الخروج'),
+                    title: Text(l10n.signOut),
                     onTap: () async {
                       Navigator.pop(context);
                       await AuthService().signOut(context);
@@ -130,7 +130,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         body: _screens[_selectedIndex],
-      ),
     );
   }
 }

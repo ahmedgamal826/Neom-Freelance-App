@@ -1,9 +1,13 @@
 //t2 Core Packages Imports
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:neon/features/authentication/presentation/screens/sign_up.screen.dart';
 
+import '../../../../core/locale/app_localizations.dart';
+import '../../../../core/locale/locale_provider.dart';
 import '../../../../core/Services/Auth/auth_service.dart';
+import '../../../../core/widgets/language_toggle_button.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/secondary_button.dart';
 
@@ -47,6 +51,8 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     //SECTION - Build Setup
     //t2 -Values
+    final l10n =
+        AppLocalizations(context.watch<LocaleProvider>().locale);
     double w = MediaQuery.of(context).size.width;
     //t2 -Values
     //
@@ -55,87 +61,88 @@ class _SignInScreenState extends State<SignInScreen> {
     //!SECTION
 
     //SECTION - Build Return
-    return Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Form(
-                key: _formKey,
-                child: Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Align(
-                        alignment: Alignment.center,
-                        child: Image.asset(
-                          "assets/images/app_logo.png",
-                          width: 80,
-                          height: 80,
+    return Stack(
+      children: [
+        Scaffold(
+          extendBody: true,
+          extendBodyBehindAppBar: true,
+          body: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: Image.asset(
+                            "assets/images/app_logo.png",
+                            width: 80,
+                            height: 80,
+                          ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 24,
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          'تسجيل الدخول',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
+                        const SizedBox(
+                          height: 24,
                         ),
-                      ),
-                      const SizedBox(
-                        height: 24,
-                      ),
-                      TextFormField(
-                        controller: emailController,
-                        decoration: const InputDecoration(
-                          hintText: "البريد الالكتروني",
-                          border: OutlineInputBorder(),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            l10n.signInTitle,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                ),
+                          ),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'الرجاء ادخال بريدك الالكتروني';
-                          }
-                          String pattern =
-                              r'^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]+';
-                          RegExp regex = RegExp(pattern);
-                          if (!regex.hasMatch(value)) {
-                            return 'الرجاء ادخال بريد الكتروني صحيح';
-                          }
-                          return null;
-                        },
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      TextFormField(
-                        controller: passwordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          hintText: "كلمة المرور",
-                          border: OutlineInputBorder(),
+                        const SizedBox(
+                          height: 24,
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'كلمة المرور يجب الا تكون فارغة';
-                          } else if (value.length < 8) {
-                            return 'يجب ان تكون كلمة المرور على الأقل 8 حروف';
-                          }
-                          return null;
-                        },
-                      ),
+                        TextFormField(
+                          controller: emailController,
+                          decoration: InputDecoration(
+                            hintText: l10n.emailHint,
+                            border: const OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return l10n.emailRequired;
+                            }
+                            String pattern =
+                                r'^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]+';
+                            RegExp regex = RegExp(pattern);
+                            if (!regex.hasMatch(value)) {
+                              return l10n.emailInvalid;
+                            }
+                            return null;
+                          },
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                        TextFormField(
+                          controller: passwordController,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            hintText: l10n.passwordHint,
+                            border: const OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return l10n.passwordRequired;
+                            } else if (value.length < 8) {
+                              return l10n.passwordMinLength;
+                            }
+                            return null;
+                          },
+                        ),
                       // const SizedBox(
                       //   height: 8,
                       // ),
@@ -172,7 +179,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
                               if (user == null) {
                                 _showErrorMessage(
-                                  'فشل تسجيل الدخول. تأكد من البريد وكلمة المرور.',
+                                  l10n.signInFailed,
                                 );
                               }
 
@@ -182,14 +189,13 @@ class _SignInScreenState extends State<SignInScreen> {
                             }
                           },
                           title: _isEmailSignInLoading
-                              ? "جاري الدخول..."
-                              : "تسجيل الدخول",
+                              ? l10n.signingIn
+                              : l10n.signInButton,
                         ),
                       )
                     ],
                   ),
                 ),
-              ),
               const SizedBox(
                 height: 32,
               ),
@@ -203,7 +209,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Text(
-                      "او",
+                      l10n.orDivider,
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: Theme.of(context).colorScheme.primary,
                           ),
@@ -237,7 +243,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
                           if (user == null) {
                             _showErrorMessage(
-                              'تعذر تسجيل الدخول عبر Google. تحقق من إعدادات Firebase.',
+                              l10n.googleSignInFailed,
                             );
                           }
 
@@ -255,7 +261,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           FontAwesomeIcons.google,
                           size: 18,
                         ),
-                  label: const Text("تسجيل الدخول باستخدام Google"),
+                  label: Text(l10n.signInWithGoogle),
                 ),
               ),
               const SizedBox(
@@ -264,7 +270,7 @@ class _SignInScreenState extends State<SignInScreen> {
               SizedBox(
                   width: w,
                   child: SecondaryButton(
-                      title: "انشاء حساب",
+                      title: l10n.createAccount,
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -278,6 +284,19 @@ class _SignInScreenState extends State<SignInScreen> {
           ),
         ),
       ),
+        ),
+        SafeArea(
+          child: Align(
+            alignment: AlignmentDirectional.topEnd,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: LanguageToggleButton(
+                iconColor: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
     //!SECTION
   }

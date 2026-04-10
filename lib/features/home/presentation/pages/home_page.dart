@@ -1,5 +1,8 @@
 //t2 Core Packages Imports
 import 'package:flutter/material.dart';
+import 'package:neon/core/locale/app_localizations.dart';
+import 'package:neon/core/locale/locale_provider.dart';
+import 'package:provider/provider.dart';
 
 import '../screens/about_neom.dart';
 
@@ -26,6 +29,8 @@ class HomePage extends StatelessWidget {
     //!SECTION
 
     // SECTION - Build Return
+    final l10n =
+        AppLocalizations(context.watch<LocaleProvider>().locale);
     return Scaffold(
       backgroundColor: const Color(0xff343538),
       body: SingleChildScrollView(
@@ -51,12 +56,12 @@ class HomePage extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Text(
-                    "عن نيوم",
-                    style: TextStyle(color: Colors.black),
+                  child: Text(
+                    l10n.aboutNeomTitle,
+                    style: const TextStyle(color: Colors.black),
                   )),
             ),
-            _buildTimelineImage(),
+            _buildTimelineImage(context),
           ],
         ),
       ),
@@ -67,7 +72,9 @@ class HomePage extends StatelessWidget {
 
   /// Builds a dynamic timeline similar to the static image but generated
   /// programmatically so new years appear automatically.
-  Widget _buildTimelineImage() {
+  Widget _buildTimelineImage(BuildContext context) {
+    final l10n =
+        AppLocalizations(context.watch<LocaleProvider>().locale);
     final int startYear = 2017;
     final int currentYear = DateTime.now().year;
     final List<int> years =
@@ -95,12 +102,12 @@ class HomePage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          const Text(
-            "OUR JOURNEY",
+          Text(
+            l10n.ourJourney,
             style: TextStyle(
               color: titleColor,
               fontSize: 22,
-              letterSpacing: 1.2,
+              letterSpacing: l10n.locale.languageCode == 'ar' ? 0 : 1.2,
               fontWeight: FontWeight.w600,
             ),
           ),

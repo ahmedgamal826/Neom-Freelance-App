@@ -82,14 +82,18 @@ class ApiServices {
           _lastReachableBaseUrl = candidate;
           return ModelStatus.fromJson(_decodeJson(response.bodyBytes));
         }
-        throw ApiException(_extractApiError(response), response.statusCode);
+        throw ApiException(
+          _extractApiError(response),
+          statusCode: response.statusCode,
+        );
       } on SocketException {
         lastConnectionError = ApiException(
           'تعذر الاتصال بالسيرفر على $candidate.',
         );
       } on TimeoutException {
         lastConnectionError = const ApiException(
-          'انتهت مهلة الاتصال بالسيرفر. تحقق من الشبكة أو من حالة الخادم.',
+          '',
+          facing: ApiUserFacing.serverConnectionTimeout,
         );
       } on FormatException {
         throw const ApiException('استجابة غير صالحة من السيرفر.');
@@ -125,7 +129,10 @@ class ApiServices {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return LoadModelResult.fromJson(_decodeJson(response.bodyBytes));
       }
-      throw ApiException(_extractApiError(response), response.statusCode);
+      throw ApiException(
+        _extractApiError(response),
+        statusCode: response.statusCode,
+      );
     } on SocketException {
       throw ApiException(
         'تعذر الاتصال بالسيرفر على $requestBaseUrl. تأكد من تشغيل python main.py أولاً. '
@@ -133,7 +140,8 @@ class ApiServices {
       );
     } on TimeoutException {
       throw const ApiException(
-        'تحميل المودل استغرق وقتاً أطول من المتوقع. قد يكون التحميل ما زال جارياً على الخادم.',
+        '',
+        facing: ApiUserFacing.loadModelTimeout,
       );
     }
   }
@@ -162,13 +170,19 @@ class ApiServices {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return ChatApiResponse.fromJson(_decodeJson(response.bodyBytes));
       }
-      throw ApiException(_extractApiError(response), response.statusCode);
+      throw ApiException(
+        _extractApiError(response),
+        statusCode: response.statusCode,
+      );
     } on SocketException {
       throw ApiException(
         'السيرفر غير متصل على $requestBaseUrl. حاول إعادة فحص الاتصال ثم أعد المحاولة.',
       );
     } on TimeoutException {
-      throw const ApiException('انتهت مهلة إرسال الرسالة. حاول مجدداً.');
+      throw const ApiException(
+        '',
+        facing: ApiUserFacing.sendMessageTimeout,
+      );
     }
   }
 
@@ -287,12 +301,24 @@ class ChatApiResponse {
   }
 }
 
+/// [ChatPage] maps [facing] to localized strings; [message] is the fallback text.
+enum ApiUserFacing {
+  serverConnectionTimeout,
+  loadModelTimeout,
+  sendMessageTimeout,
+}
+
 class ApiException implements Exception {
-  const ApiException(this.message, [this.statusCode]);
+  const ApiException(
+    this.message, {
+    this.statusCode,
+    this.facing,
+  });
 
   final String message;
   final int? statusCode;
+  final ApiUserFacing? facing;
 
   @override
-  String toString() => message;
+  String toString() => message.isNotEmpty ? message : (facing?.name ?? '');
 }
